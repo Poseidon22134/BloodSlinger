@@ -30,8 +30,8 @@ AIR_RESISTANCE = 0.995
 GROUND_RESISTANCE = 16
 DASH_FINISH_TIME = 0.1
 
-DASH_VELOCITY = 416
-DASH_DURATION = 0.3
+DASH_VELOCITY = 512
+DASH_DURATION = 0.2
 DASH_COOLDOWN = 0.4
 
 MAX_RUN_SPEED = 256
@@ -40,7 +40,7 @@ MAX_FLOAT_SPEED = 128
 FLOAT_ACCELERATION = MAX_FLOAT_SPEED * AIR_RESISTANCE * 4
 
 DOUBLE_JUMP_ENABLED = False
-DASH_ENABLED = False
+DASH_ENABLED = True
 
 COYOTE_TIME = 0.15
 
@@ -49,17 +49,17 @@ class Player:
         self.app = app
         self.parent = parent
 
-        self.physics_body = dynamicBody(self.app, glm.vec2(0), glm.vec2(48, 64))
+        self.physics_body = dynamicBody(self.app, glm.vec2(0), glm.vec2(40, 90))
         self.parent.physics_processor.add_body(self.physics_body)
 
-        self.sprite = AnimatedSprite(self.app, "player.png", glm.vec2(3, 1), 0.25, {
+        self.sprite = AnimatedSprite(self.app, "player.png", glm.vec2(7, 1), 0.2, {
                 "animations": {
                     "Idle": { "frames": 3, "frame_offset": 0, "repeat": True },
                     # "Run": { "frames": 8, "frame_offset": 11, "repeat": True },
                     # "Jump": { "frames": 1, "frame_offset": 19, "repeat": False },
                     # "Fall": { "frames": 6, "frame_offset": 20, "repeat": False },
                     # "Land": { "frames": 2, "frame_offset": 26, "repeat": False },
-                    # "Dash": { "frames": 6, "frame_offset": 28, "repeat": False }
+                    "Dash": { "frames": 4, "frame_offset": 3, "repeat": False }
                 },
                 "default": "Idle"                   
         })
@@ -156,6 +156,8 @@ class Player:
         pass
 
     def handle_state(self):
+        print(self.state)
+        
         if self.physics_body.colliding["bottom"]:
             self.dash_reset = True
             self.double_jump = True
@@ -233,9 +235,6 @@ class Player:
         elif self.state == 4: # Running/Walking
             # self.sprite.set_animation("Run")
 
-            # self.physics_body.size.x = 40
-            self.sprite_offset.x = -12 * self.direction
-
             self.run(min(self.actions[2], 1) - min(self.actions[1], 1), self.actions[3])
 
             if self.paricle_timer <= 0:
@@ -259,11 +258,8 @@ class Player:
 
             if abs(self.physics_body.velocity.x) < STOPPED_VELOCITY:
                 self.state = 0
-                self.sprite_offset.x = 0
         elif self.state == 5: # Dash
-            # self.sprite.set_animation("Dash")
-
-            self.sprite_offset.x = -12 * self.direction
+            self.sprite.set_animation("Dash")
 
             self.dash_duration -= 1 / self.app.fps
             self.physics_body.velocity.y = 0
@@ -277,10 +273,8 @@ class Player:
                         self.state = 4
                         return
                     self.state = 3
-                    self.sprite_offset.x = 0
                 else:
                     self.state = 2
-                    self.sprite_offset.x = 0
         elif self.state == 6: # Attacking
             # self.sprite.set_animation("Attack")
 
@@ -295,3 +289,12 @@ class Player:
         self.sprite.program["scale"] = glm.vec2(1)
         self.sprite.program["flipped"] = self.direction == -1
         self.sprite.render()
+
+class Animal:
+    def __init__(self, app, parent, animal_type, position):
+        self.app = app
+        self.parent = parent
+
+        self.type = animal_type
+
+        self.physics_body = dynamicBody(self.app, position, glm.vec2(16))

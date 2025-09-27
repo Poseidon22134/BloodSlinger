@@ -16,7 +16,6 @@ class Camera:
     
     def update(self):
         if self.anchored:
-            print(self.offset, self.target_offset)
             self.offset = glm.lerp(self.offset, self.target_offset, 0.08)
             self.position = self.anchor + self.offset
 

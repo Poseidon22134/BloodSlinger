@@ -1,4 +1,4 @@
-import glm
+import glm, json
 
 from render.mesh import Mesh
 from scene.objects import Camera, TileMap, StaticObject
@@ -17,21 +17,12 @@ class Campaign:
 
         self.player = Player(self.app, self)
 
-        tile_layout = []
-
-        with open("test.txt", "r") as file:
-            lines = file.readlines()
-
-            for line in lines:
-                tile_layout.insert(0, [])
-                for tile in line:
-                    try:
-                        tile_layout[0].append(int(tile))
-                    except ValueError:
-                        pass
-
-        self.tilemap = TileMap(self.app, self, "tileset.png", tilemap_dimensions=glm.vec2(4, 4), tile_layout=tile_layout, position=glm.vec2(-128, -64), collision=True)
-        self.alter = StaticObject(self.app, self, "Sacrifice bowl.png", glm.vec2(0, 16))
+        with open(f"{self.app.dir}/assets/maps/test.json", "r") as f:
+            data = json.load(f)
+            tile_layout = data["tile_layout"]
+            position = glm.vec2(data["position"])
+        self.tilemap = TileMap(self.app, self, "tileset.png", tilemap_dimensions=glm.vec2(4, 4), tile_layout=tile_layout, position=position, collision=True)
+        self.alter = StaticObject(self.app, self, "Sacrifice bowl.png", glm.vec2(0, 32))
 
         self.camera = Camera(self.app, glm.vec2(0), anchor=self.player.physics_body.position, target_offset=glm.vec2(0))
     

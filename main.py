@@ -2,7 +2,7 @@ import pygame, glm
 
 from base.main import App
 from campaign import Campaign
-# from mapEditor import MapEditor
+from mapEditor import MapEditor
 # from menus import TitleScreen
 
 class Metroidvania(App):
@@ -12,6 +12,7 @@ class Metroidvania(App):
         super().__init__(self.resolution * self.scale)
 
         self.state = Campaign(self)
+        # self.state = MapEditor(self)
 
     def handle_events(self):
         for event in pygame.event.get():
