@@ -13,7 +13,7 @@ class Metroidvania(App):
 
         self.state = Campaign(self)
         # self.state = MapEditor(self)
-# 
+
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (
@@ -34,7 +34,6 @@ class Metroidvania(App):
         self.state.render()
 
         pygame.display.flip()
-
 
 if __name__ == "__main__":
     game = Metroidvania()

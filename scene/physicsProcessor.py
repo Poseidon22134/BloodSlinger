@@ -32,11 +32,25 @@ class dynamicBody:
     self.velocity = glm.vec2(0)
     self.acceleration = glm.vec2(0, -gravity)
 
-    self.colliding = {"top": False, "bottom": False, "left": False, "right": False}
+    self.colliding = {"top": False, "bottom": False, "left": False, "right": False, "area": 0}
 
   def update(self):
     self.position += self.velocity / self.app.fps + 0.5 * self.acceleration / self.app.fps**2
     self.velocity += self.acceleration / self.app.fps
+
+class dynamicHurtBody:
+  type = "area"
+  def __init__(self, app, position, size, i):
+    self.app = app
+    self.position = position
+    self.size = size
+    self.velocity = glm.vec2(0)
+
+    self.colliding = {"object": False}
+    self.i = i
+
+  def update(self):
+    self.position += self.velocity / self.app.fps
 
 class StaticTileMapBody:
   type = "static"
@@ -65,16 +79,35 @@ class PhysicsProcessor:
 
     self.children = {
       "static": [],
-      "dynamic": []
+      "dynamic": [],
+      "area": []
     }
 
   def add_body(self, body):
     self.children[body.type].append(body)
+  
+  def remove(self, body):
+    self.children[body.type].remove(body)
 
   def update(self):
+    for child in self.children["area"]:
+      child.update()
+      child.colliding = {"object": False}
+
+      for body in self.children["dynamic"]:
+        body.colliding.update({"area": 0})
+        # check if colliding and give the child the i value of the area if colliding
+        # not using get_collision_bounds as the area bodies are not axis aligned boxes
+
+        col = abs(child.position - body.position) < (child.size + body.size) / 2
+        if col.x and col.y:
+          child.colliding["object"] = True
+          body.colliding["area"] = child.i
+          break
+
     for child in self.children["dynamic"]:
       child.update()
-      child.colliding = {"top": False, "bottom": False, "left": False, "right": False}
+      child.colliding.update({"top": False, "bottom": False, "left": False, "right": False})
 
       for otherChild in self.children["static"]:
 

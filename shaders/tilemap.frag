@@ -23,8 +23,8 @@ void main() {
     vec2 tileLocalUV = vec2(mod((uv * screenResolution - screenResolution / 2) / tileSize, 1));
 
     if (tileIndex == 0 || tileIndex == -1) {
-        // discard;
-        color = vec4(max(max(tileLocalUV.x, tileLocalUV.y), floor((tileLocalUV.x + tileLocalUV.y) * 0.5)));
+        discard;
+        // color = vec4(max(max(tileLocalUV.x, tileLocalUV.y), floor((tileLocalUV.x + tileLocalUV.y) * 0.5)));
     } else {
         vec2 tileUV = vec2(
             (float(tileIndex - 1) + tileLocalUV.x) / tilemapDimensions.x,

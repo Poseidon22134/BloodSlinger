@@ -1,7 +1,9 @@
 import pygame, glm, random
+from copy import deepcopy
 
 from render.sprite import AnimatedSprite
 from scene.physicsProcessor import dynamicBody
+from scene.particles import Particle
 
 directions = {
   -1: "left",
@@ -40,7 +42,6 @@ MAX_FLOAT_SPEED = 128
 FLOAT_ACCELERATION = MAX_FLOAT_SPEED * AIR_RESISTANCE * 4
 
 DOUBLE_JUMP_ENABLED = False
-DASH_ENABLED = True
 
 COYOTE_TIME = 0.15
 
@@ -84,8 +85,9 @@ class Player:
 
         self.always_running = True
 
+        self.sacrificed = 10
         self.health = 10
-        self.mana = 0
+        self.mana = 100
     
     def update(self):
         self.update_actions()
@@ -145,7 +147,7 @@ class Player:
             return True 
 
     def dash(self, direction):
-        if self.dash_cooldown <= 0 and self.dash_reset and DASH_ENABLED:
+        if self.dash_cooldown <= 0 and self.dash_reset and self.sacrificed >= 5:
             self.physics_body.velocity.x = DASH_VELOCITY * (direction if direction else self.direction)
             self.dash_duration = DASH_DURATION
             self.dash_cooldown = DASH_COOLDOWN
@@ -192,9 +194,13 @@ class Player:
             if self.actions[5]:
                 if self.dash(min(self.actions[2], 1) - min(self.actions[1], 1)):
                     self.state = 5
+            
+            if self.actions[4] == 1 and self.sacrificed >= 1 and self.mana > 1:
+                self.mana -= 1
+                print(self.direction)
+                self.parent.particles.append(Particle(self.app, self.parent, ("a1" if self.sacrificed <= 5 else "a2"), deepcopy(self.physics_body.position) + glm.vec2(64, 0) * self.direction, direction=self.direction))
         elif self.state == 1: # Jumping
-            # self.sprite.set_animation("Jump")
-
+            self.sprite.set_animation("Idle")
             self.run(min(self.actions[2], 1) - min(self.actions[1], 1), self.actions[3])
 
             if not self.jump(self.actions[0]):
@@ -204,7 +210,7 @@ class Player:
                 if self.dash(min(self.actions[2], 1) - min(self.actions[1], 1)):
                     self.state = 5
         elif self.state == 2: # Falling
-            # self.sprite.set_animation("Fall")
+            self.sprite.set_animation("Idle")
 
             self.run(min(self.actions[2], 1) - min(self.actions[1], 1), self.actions[3])
 
@@ -223,7 +229,7 @@ class Player:
                 if self.dash(min(self.actions[2], 1) - min(self.actions[1], 1)):
                     self.state = 5
         elif self.state == 3: # Landing
-            # self.sprite.set_animation("Land")
+            self.sprite.set_animation("Idle")
 
             if abs(self.physics_body.velocity.x) < STOPPED_VELOCITY and self.sprite.animation_finished:
                 self.state = 0
@@ -277,14 +283,7 @@ class Player:
                     self.state = 3
                 else:
                     self.state = 2
-        elif self.state == 6: # Attacking
-            # self.sprite.set_animation("Attack")
 
-            if self.sprite.animation_finished:
-                if self.physics_body.colliding["bottom"] and abs(self.physics_body.velocity.x) < STOPPED_VELOCITY:
-                    self.state = 0
-                else:
-                    self.state = 4
 
     def render(self):
         self.sprite.program["position"] = (self.physics_body.position + self.sprite_offset - self.parent.camera.position) / self.app.resolution
@@ -302,7 +301,7 @@ class Animal:
 
         self.sprite_type = self.type + self.animal_alignment
 
-        self.physics_body = dynamicBody(self.app, position, glm.vec2(16))
+        self.physics_body = dynamicBody(self.app, position, glm.vec2(32))
         self.parent.physics_processor.add_body(self.physics_body)
 
         self.sprite = AnimatedSprite(self.app, "Animals.png", glm.vec2(4, 3), 0.2, {
@@ -325,13 +324,19 @@ class Animal:
     def update(self):
         if random.randint(0, 100) == 0:
             self.direction *= -1
+        if self.type == "b" and random.randint(0, 5) == 0:
+                self.physics_body.velocity.y = 128
         
         self.physics_body.velocity.x = 10 * self.direction
+
+        if self.physics_body.colliding["area"]:
+            self.parent.animals.remove(self)
+            self.parent.physics_processor.remove(self.physics_body)
 
         self.sprite.update()
     
     def render(self):
-        self.sprite.program["position"] = (self.physics_body.position + glm.vec2(0, 8) - self.parent.camera.position) / self.app.resolution
+        self.sprite.program["position"] = (self.physics_body.position - self.parent.camera.position) / self.app.resolution
         self.sprite.program["scale"] = glm.vec2(1)
         self.sprite.program["flipped"] = self.direction == -1
         self.sprite.render()
