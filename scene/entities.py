@@ -99,6 +99,7 @@ class Player:
         keys[pygame.K_x],  # Attack
         keys[pygame.K_c] | keys[pygame.K_i]  # Dash
         ]
+
         for idx, action in enumerate(actions):
             if action:
                 self.actions[idx] = 2 if self.actions[idx] else 1
@@ -156,8 +157,6 @@ class Player:
         pass
 
     def handle_state(self):
-        print(self.state)
-        
         if self.physics_body.colliding["bottom"]:
             self.dash_reset = True
             self.double_jump = True
@@ -233,7 +232,7 @@ class Player:
             if self.run(min(self.actions[2], 1) - min(self.actions[1], 1), self.actions[3]):
                 self.state = 4
         elif self.state == 4: # Running/Walking
-            # self.sprite.set_animation("Run")
+            self.sprite.set_animation("Idle")
 
             self.run(min(self.actions[2], 1) - min(self.actions[1], 1), self.actions[3])
 
@@ -291,10 +290,45 @@ class Player:
         self.sprite.render()
 
 class Animal:
-    def __init__(self, app, parent, animal_type, position):
+    def __init__(self, app, parent, animal_type="r", animal_alignment="1", position=glm.vec2(0)):
         self.app = app
         self.parent = parent
 
         self.type = animal_type
+        self.animal_alignment = animal_alignment
+
+        self.sprite_type = self.type + self.animal_alignment
 
         self.physics_body = dynamicBody(self.app, position, glm.vec2(16))
+        self.parent.physics_processor.add_body(self.physics_body)
+
+        self.sprite = AnimatedSprite(self.app, "Animals.png", glm.vec2(4, 3), 0.2, {
+            "animations": {
+                "r1": {"frames": 1, "frame_offset": 0, "repeat": True},
+                "c1": {"frames": 1, "frame_offset": 1, "repeat": True},
+                "r2": {"frames": 1, "frame_offset": 2, "repeat": True},
+                "c2": {"frames": 1, "frame_offset": 3, "repeat": True},
+                "b1": {"frames": 2, "frame_offset": 4, "repeat": True},
+                "b2": {"frames": 2, "frame_offset": 6, "repeat": True},
+                "f1": {"frames": 1, "frame_offset": 8, "repeat": True},
+                "f2": {"frames": 1, "frame_offset": 9, "repeat": True},
+            },
+            "default": "r1"
+        })
+        self.sprite.set_animation(self.sprite_type)
+
+        self.direction = 1
+
+    def update(self):
+        if random.randint(0, 100) == 0:
+            self.direction *= -1
+        
+        self.physics_body.velocity.x = 10 * self.direction
+
+        self.sprite.update()
+    
+    def render(self):
+        self.sprite.program["position"] = (self.physics_body.position + glm.vec2(0, 8) - self.parent.camera.position) / self.app.resolution
+        self.sprite.program["scale"] = glm.vec2(1)
+        self.sprite.program["flipped"] = self.direction == -1
+        self.sprite.render()

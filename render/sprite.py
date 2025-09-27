@@ -109,11 +109,10 @@ class AnimatedSprite:
             self.frame = float(int(self.time / self.frame_duration) % self.animations[self.animation]["frames"]) + self.animations[self.animation]["frame_offset"]
         else:
             self.frame = float(int(self.time / self.frame_duration) % self.frame_count)
-        
-        self.program["frame"] = self.frame
-    
+            
     def render(self):
         self.texture.use()
+        self.program["frame"] = self.frame
         self.vao.render()   
         
 class ProcSprite:

@@ -11,9 +11,9 @@ class Metroidvania(App):
         self.resolution: glm.vec2 = glm.vec2(640, 360)
         super().__init__(self.resolution * self.scale)
 
-        # self.state = Campaign(self)
-        self.state = MapEditor(self)
-
+        self.state = Campaign(self)
+        # self.state = MapEditor(self)
+# 
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (

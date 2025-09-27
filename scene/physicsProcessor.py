@@ -24,13 +24,13 @@ gravity = 1024
 
 class dynamicBody:
   type = "dynamic"
-  def __init__(self, app, position, size, velocity=glm.vec2(0, 0), acceleration=glm.vec2(0, -gravity)):
+  def __init__(self, app, position, size):
     self.app = app
     # position is the center of the body, the size will extend half both ways
     self.position = position
     self.size = size
-    self.velocity = velocity
-    self.acceleration = acceleration
+    self.velocity = glm.vec2(0)
+    self.acceleration = glm.vec2(0, -gravity)
 
     self.colliding = {"top": False, "bottom": False, "left": False, "right": False}
 
@@ -95,4 +95,3 @@ class PhysicsProcessor:
 
           child.colliding["left" if collision_direction else "right"] |= bool(collision_domain.x)
           child.colliding["bottom" if collision_direction else "top"] |= bool(collision_domain.y)
-      # print(child.velocity)

@@ -5,20 +5,21 @@ class ShaderProgram:
         self.ctx = ctx
         self.dir = dir
         
-        self.programs = {}
+        # self.programs = {}
     
     def load_program(self, name):
-        if str(name) not in self.programs:
-            if isinstance(name, list):
-                vs, fs = name
-            else:
-                vs = fs = name
-            with open(f"{self.dir}/shaders/{vs}.vert", "r") as f:
-                vert = f.read()
-            with open(f"{self.dir}/shaders/{fs}.frag", "r") as f:
-                frag = f.read()
-            self.programs[str(name)] = self.ctx.program(vertex_shader=vert, fragment_shader=frag)
-        return self.programs[str(name)]
+        # if str(name) not in self.programs:
+        if isinstance(name, list):
+            vs, fs = name
+        else:
+            vs = fs = name
+        with open(f"{self.dir}/shaders/{vs}.vert", "r") as f:
+            vert = f.read()
+        with open(f"{self.dir}/shaders/{fs}.frag", "r") as f:
+            frag = f.read()
+        # self.programs[str(name)] = self.ctx.program(vertex_shader=vert, fragment_shader=frag)
+        # return self.programs[str(name)]
+        return self.ctx.program(vertex_shader=vert, fragment_shader=frag)
 
 # Test - to complete and test in future when rendering is implemented completely
 # class ComputeProgram:

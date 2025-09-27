@@ -17,7 +17,6 @@ class MapEditor:
 
         self.world_center = Mesh(self.app, glm.vec2(8, 8), ['sprite', 'fire'])
 
-
         self.current_tile = 1
         self.keydown = False
 
