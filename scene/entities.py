@@ -52,7 +52,18 @@ class Player:
         self.physics_body = dynamicBody(self.app, glm.vec2(0), glm.vec2(48, 64))
         self.parent.physics_processor.add_body(self.physics_body)
 
-        # todo: Sprite
+        self.sprite = AnimatedSprite(self.app, "player.png", glm.vec2(3, 1), 0.25, {
+                "animations": {
+                    "Idle": { "frames": 3, "frame_offset": 0, "repeat": True },
+                    # "Run": { "frames": 8, "frame_offset": 11, "repeat": True },
+                    # "Jump": { "frames": 1, "frame_offset": 19, "repeat": False },
+                    # "Fall": { "frames": 6, "frame_offset": 20, "repeat": False },
+                    # "Land": { "frames": 2, "frame_offset": 26, "repeat": False },
+                    # "Dash": { "frames": 6, "frame_offset": 28, "repeat": False }
+                },
+                "default": "Idle"                   
+        })
+        self.sprite_offset = glm.vec2(0)
 
         self.actions = [0] * 6
         self.state = 0
@@ -76,7 +87,7 @@ class Player:
     def update(self):
         self.update_actions()
         self.handle_state()
-        # self.sprite.update()
+        self.sprite.update()
     
     def update_actions(self):
         keys = pygame.key.get_pressed()
@@ -178,7 +189,7 @@ class Player:
                 if self.dash(min(self.actions[2], 1) - min(self.actions[1], 1)):
                     self.state = 5
         elif self.state == 1: # Jumping
-            self.sprite.set_animation("Jump")
+            # self.sprite.set_animation("Jump")
 
             self.run(min(self.actions[2], 1) - min(self.actions[1], 1), self.actions[3])
 
@@ -189,7 +200,7 @@ class Player:
                 if self.dash(min(self.actions[2], 1) - min(self.actions[1], 1)):
                     self.state = 5
         elif self.state == 2: # Falling
-            self.sprite.set_animation("Fall")
+            # self.sprite.set_animation("Fall")
 
             self.run(min(self.actions[2], 1) - min(self.actions[1], 1), self.actions[3])
 
@@ -208,7 +219,7 @@ class Player:
                 if self.dash(min(self.actions[2], 1) - min(self.actions[1], 1)):
                     self.state = 5
         elif self.state == 3: # Landing
-            self.sprite.set_animation("Land")
+            # self.sprite.set_animation("Land")
 
             if abs(self.physics_body.velocity.x) < STOPPED_VELOCITY and self.sprite.animation_finished:
                 self.state = 0
@@ -220,7 +231,7 @@ class Player:
             if self.run(min(self.actions[2], 1) - min(self.actions[1], 1), self.actions[3]):
                 self.state = 4
         elif self.state == 4: # Running/Walking
-            self.sprite.set_animation("Run")
+            # self.sprite.set_animation("Run")
 
             # self.physics_body.size.x = 40
             self.sprite_offset.x = -12 * self.direction
@@ -250,7 +261,7 @@ class Player:
                 self.state = 0
                 self.sprite_offset.x = 0
         elif self.state == 5: # Dash
-            self.sprite.set_animation("Dash")
+            # self.sprite.set_animation("Dash")
 
             self.sprite_offset.x = -12 * self.direction
 
@@ -280,8 +291,7 @@ class Player:
                     self.state = 4
 
     def render(self):
-        # self.sprite.program["position"] = (self.physics_body.position + self.sprite_offset - self.camera.position) / self.app.resolution # 14 pixel sprite offset
-        # self.sprite.program["scale"] = self.camera.zoom
-        # self.sprite.program["flipped"] = self.direction == -1
-        # self.sprite.render()
-        pass
+        self.sprite.program["position"] = (self.physics_body.position + self.sprite_offset - self.parent.camera.position) / self.app.resolution
+        self.sprite.program["scale"] = glm.vec2(1)
+        self.sprite.program["flipped"] = self.direction == -1
+        self.sprite.render()
