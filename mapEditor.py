@@ -22,7 +22,7 @@ class MapEditor:
 
     def update(self):
         keys = pygame.key.get_pressed()
-        self.camera.position += glm.vec2(keys[pygame.K_RIGHT] - keys[pygame.K_LEFT], keys[pygame.K_UP] - keys[pygame.K_DOWN])
+        self.camera.position += glm.vec2(keys[pygame.K_RIGHT] - keys[pygame.K_LEFT], keys[pygame.K_UP] - keys[pygame.K_DOWN]) * 10
 
         tile_pos = glm.floor(self.app.mouse_position - self.tilemap.position + self.camera.position + self.app.resolution / 2 * glm.vec2(-1, 1)) // self.tilemap.tile_size
 

@@ -17,8 +17,8 @@ class Campaign:
 
         self.player = Player(self.app, self)
 
-        # self.cat = Animal(self.app, self, "c", position=glm.vec2(64, 0))
-        # self.rabbit = Animal(self.app, self, "r", position=glm.vec2(-64, 0))
+        self.cat = Animal(self.app, self, "f", position=glm.vec2(64, 0))
+        self.rabbit = Animal(self.app, self, "r", position=glm.vec2(-64, 0))
 
         with open(f"{self.app.dir}/assets/maps/test.json", "r") as f:
             data = json.load(f)
@@ -30,8 +30,8 @@ class Campaign:
         self.camera = Camera(self.app, glm.vec2(0), anchor=self.player.physics_body.position, target_offset=glm.vec2(0))
     
     def update(self):
-        # self.cat.update()
-        # self.rabbit.update()
+        self.cat.update()
+        self.rabbit.update()
         self.player.update()
         self.physics_processor.update()
 
@@ -45,8 +45,8 @@ class Campaign:
         self.tilemap.render()
         self.alter.render()
 
-        # self.cat.render()
-        # self.rabbit.render()
+        self.cat.render()
+        self.rabbit.render()
 
         self.player.render()
 

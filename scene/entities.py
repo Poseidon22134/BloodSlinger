@@ -83,6 +83,9 @@ class Player:
         self.paricle_timer = 0
 
         self.always_running = True
+
+        self.health = 10
+        self.mana = 0
     
     def update(self):
         self.update_actions()
