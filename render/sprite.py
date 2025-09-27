@@ -41,10 +41,9 @@ class Sprite:
         self.vao.render()    
 
 class AnimatedSprite:
-    def __init__(self, app, camera, name, dimensions: glm.vec2, frame_duration: float, data: dict= None):     
+    def __init__(self, app, name, dimensions: glm.vec2, frame_duration: float, data: dict= None):     
         self.app = app
         self.ctx = app.ctx
-        self.camera = camera
         
         self.image = pygame.image.load(f"{app.dir}/assets/graphics/{name}").convert_alpha()
         self.size = glm.vec2(self.image.get_width(), self.image.get_height())

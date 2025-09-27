@@ -16,8 +16,28 @@ class Camera:
     
     def update(self):
         if self.anchored:
-            self.offset = pygame.math.lerp(self.offset, self.target_offset, 0.5)
-            self.position = self.anchor + self.target_offset
+            print(self.offset, self.target_offset)
+            self.offset = glm.lerp(self.offset, self.target_offset, 0.08)
+            self.position = self.anchor + self.offset
+
+class StaticObject:
+    def __init__(self, app, parent, name, position=glm.vec2(0)):
+        self.app = app
+        self.parent = parent
+
+        self.position = position
+
+        self.image = pygame.image.load(f"{app.dir}/assets/graphics/{name}").convert_alpha()
+        self.size = glm.vec2(self.image.get_width(), self.image.get_height())
+        self.texture: mgl.Texture = self.app.ctx.texture(glm.ivec2(self.size), 4, pygame.image.tobytes(self.image, 'RGBA', flipped=True))
+        self.texture.filter = (mgl.NEAREST, mgl.NEAREST)
+
+        self.mesh = Mesh(self.app, self.size, "sprite")
+
+    def render(self):
+        self.texture.use()
+        self.mesh.program["position"] = (self.position - self.parent.camera.position) / self.app.resolution
+        self.mesh.render()
 
 class TileMap:
     def __init__(self, app, parent, name, tile_size=32, tilemap_dimensions=glm.vec2(32), tile_layout=None, position=glm.vec2(0), collision=False):
@@ -43,24 +63,8 @@ class TileMap:
         self.mesh.program["tilemap"] = 0
         self.mesh.program["tilemapLayout"] = 1
 
-        # Auto tiler
-        # ground_tiles = [390, 391, 392, 393]
+        self.tile_layout = tile_layout
 
-        # self.tile_layout = tile_layout
-        self.tile_layout = [
-            [422 + random.randint(0, 3) for _ in range(20)],
-            [422 + random.randint(0, 3) for _ in range(20)],
-            [545 + random.randint(0, 5) + 32 * random.randint(0, 1) for _ in range(20)],
-            [422 + random.randint(0, 3) for _ in range(20)],
-            [390 + random.randint(0, 3) for _ in range(20)],
-            [0, 5, 0, 0, 0, 0, 0, 0, 5, 0, 0, 5, 0, 0, 0, 0, 5, 0, 0, 0],
-            [0, 5, 5, 0, 0, 0, 0, 5, 5, 0, 0, 5, 5, 5, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ]
-        # self.tile_layout = [
-        #     [i + n * 32 for i in range(1, 32)] for n in range(1, 32)
-        # ]
-        # self.tile_layout.reverse()
         self.update_tilemap()
 
         if collision:
@@ -85,8 +89,8 @@ class TileMap:
         self.tilemap_texture.use(1)
         self.texture.use(0)
 
-        self.mesh.program["offset"] = glm.ivec2(self.parent.camera.position) - glm.ivec2(self.position)
-        self.mesh.program["mapScale"] = self.parent.camera.zoom
+        self.mesh.program["offset"] = glm.ivec2(self.parent.camera.position - self.position)
+        self.mesh.program["mapScale"] = glm.vec2(1)
         self.mesh.render()
 
 class TileCursor:
