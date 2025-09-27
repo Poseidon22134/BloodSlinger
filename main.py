@@ -1,0 +1,40 @@
+import pygame, glm
+
+from base.main import App
+from campaign import Campaign
+# from mapEditor import MapEditor
+# from menus import TitleScreen
+
+class Metroidvania(App):
+    def __init__(self):
+        self.scale = 2
+        self.resolution: glm.vec2 = glm.vec2(640, 360)
+        super().__init__(self.resolution * self.scale)
+
+        self.state = Campaign(self)
+
+    def handle_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or (
+                event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE
+            ):
+                self.running = False
+
+    def update(self):
+        self.mouse_position = (
+            glm.vec2(*pygame.mouse.get_pos()) / self.scale * glm.vec2(1, -1)
+        )
+
+        self.state.update()
+
+    def render(self):
+        self.ctx.screen.clear()
+
+        self.state.render()
+
+        pygame.display.flip()
+
+
+if __name__ == "__main__":
+    game = Metroidvania()
+    game.run()

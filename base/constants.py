@@ -1,0 +1,4 @@
+import pygame
+
+GL_VERSION = (4, 6, pygame.GL_CONTEXT_PROFILE_CORE)
+DEPTH_SIZE = 24
