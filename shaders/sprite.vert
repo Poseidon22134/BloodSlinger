@@ -12,5 +12,5 @@ out vec2 UV;
 
 void main() {
     UV = vec2(flipped ? 1.0 - vertexUV.x : vertexUV.x, vertexUV.y);
-    gl_Position = vec4((vertexPosition + position * 2.0) * scale, 0.0, 1.0);
+    gl_Position = vec4((vertexPosition * scale + position * 2.0), 0.0, 1.0);
 }

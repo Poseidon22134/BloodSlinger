@@ -38,7 +38,8 @@ class MapEditor:
             self.keydown = False
 
         if keys[pygame.K_q]:
-            print(self.app.mouse_position + self.camera.position + self.app.resolution / glm.vec2(-2, 2))
+            print(tile_pos)
+        
 
         if pygame.mouse.get_pressed()[1] or pygame.key.get_pressed()[pygame.K_BACKSPACE]:
             # Check bounds

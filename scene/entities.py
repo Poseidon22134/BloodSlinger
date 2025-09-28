@@ -50,7 +50,7 @@ class Player:
         self.app = app
         self.parent = parent
 
-        self.physics_body = dynamicBody(self.app, glm.vec2(0), glm.vec2(40, 90))
+        self.physics_body = dynamicBody(self.app, glm.vec2(0), glm.vec2(40, 94))
         self.parent.physics_processor.add_body(self.physics_body)
 
         self.sprite = AnimatedSprite(self.app, "player.png", glm.vec2(7, 1), 0.2, {
@@ -85,9 +85,9 @@ class Player:
 
         self.always_running = True
 
-        self.sacrificed = 2
-        self.health = 10
-        self.mana = 100
+        self.sacrificed = 0
+        self.health = 1
+        self.mana = 0
     
     def update(self):
         self.update_actions()
@@ -159,9 +159,10 @@ class Player:
         self.direction = direction if direction else self.direction
 
     def attack(self, inp):
-        if inp == 1 and self.sacrificed >= 1 and self.mana > 1:
-            self.mana -= 1
-            self.parent.particles.append(Particle(self.app, self.parent, ("a1" if self.sacrificed <= 5 else "a2"), deepcopy(self.physics_body.position) + glm.vec2(64, 0) * self.direction, direction=self.direction))
+        if inp != 1:
+            return
+        self.parent.particles.append(Particle(self.app, self.parent, ("a1" if self.sacrificed <= 5 else "a2") if self.mana >= 1 else "a0", deepcopy(self.physics_body.position) + glm.vec2(64, 0) * self.direction - glm.vec2(0, 16), direction=self.direction))
+        self.mana = max(0, self.mana - 1)
 
 
     def handle_state(self):
@@ -315,8 +316,9 @@ class Animal:
 
         self.physics_body = dynamicBody(self.app, position, glm.vec2(32))
         self.parent.physics_processor.add_body(self.physics_body)
+        self.scale = glm.vec2(1)
 
-        self.sprite = AnimatedSprite(self.app, "Animals.png", glm.vec2(4, 3), 0.2, {
+        self.sprite = AnimatedSprite(self.app, "Animals.png", glm.vec2(4, 4), 0.2, {
             "animations": {
                 "r1": {"frames": 1, "frame_offset": 0, "repeat": True},
                 "c1": {"frames": 1, "frame_offset": 1, "repeat": True},
@@ -326,6 +328,10 @@ class Animal:
                 "b2": {"frames": 2, "frame_offset": 6, "repeat": True},
                 "f1": {"frames": 1, "frame_offset": 8, "repeat": True},
                 "f2": {"frames": 1, "frame_offset": 9, "repeat": True},
+                "dr": {"frames": 1, "frame_offset": 10, "repeat": True},
+                "dc": {"frames": 1, "frame_offset": 11, "repeat": True},
+                "db": {"frames": 2, "frame_offset": 12, "repeat": True},
+                "df": {"frames": 1, "frame_offset": 13, "repeat": True}
             },
             "default": "r1"
         })
@@ -334,21 +340,33 @@ class Animal:
         self.direction = 1
 
     def update(self):
+        if self.animal_alignment == "d":
+            self.scale = glm.vec2(1)
+            if glm.abs(self.physics_body.position.x - self.parent.player.physics_body.position.x) < 64 and glm.abs(self.physics_body.position.y - self.parent.player.physics_body.position.y) < 64:
+                self.scale = glm.vec2(1.5)
+                if pygame.key.get_pressed()[pygame.K_e]:
+                    self.physics_body.position = self.parent.player.physics_body.position
+                    self.physics_body.acceleration = glm.vec2(0)
+            return
         if random.randint(0, 100) == 0:
             self.direction *= -1
         if self.type == "b" and random.randint(0, 5) == 0:
                 self.physics_body.velocity.y = 128
         
-        self.physics_body.velocity.x = 10 * self.direction
+        self.physics_body.velocity.x = (50 if self.type == "b" else 20) * self.direction
 
-        if self.physics_body.colliding["area"]:
-            self.parent.animals.remove(self)
-            self.parent.physics_processor.remove(self.physics_body)
+        if self.physics_body.colliding["area"]: # become dead
+            self.sprite.set_animation("d" + self.type)
+            self.animal_alignment = "d"
+            self.physics_body.velocity = glm.vec2(0)
+            self.physics_body.size = glm.vec2(32, 2)
+            # self.parent.animals.remove(self)
+            # self.parent.physics_processor.remove(self.physics_body)
 
         self.sprite.update()
     
     def render(self):
         self.sprite.program["position"] = (self.physics_body.position - self.parent.camera.position) / self.app.resolution
-        self.sprite.program["scale"] = glm.vec2(1)
+        self.sprite.program["scale"] = self.scale
         self.sprite.program["flipped"] = self.direction == -1
         self.sprite.render()

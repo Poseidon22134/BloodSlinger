@@ -1,7 +1,7 @@
 import pygame, moderngl as mgl, glm, numpy as np
 
 class Sprite:
-    def __init__(self, app, name, pixel=True): # type: ignore
+    def __init__(self, app, name, pixel=True):
         self.app = app
         self.ctx = app.ctx
         

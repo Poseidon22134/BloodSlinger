@@ -44,13 +44,13 @@ class dynamicHurtBody:
     self.app = app
     self.position = position
     self.size = size
-    self.velocity = glm.vec2(0)
 
     self.colliding = {"object": False}
     self.i = i
 
   def update(self):
-    self.position += self.velocity / self.app.fps
+    pass
+    # self.position += self.velocity / self.app.fps
 
 class StaticTileMapBody:
   type = "static"

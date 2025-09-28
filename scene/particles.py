@@ -14,7 +14,16 @@ class Particle:
         self.direction = direction
 
         print(self.type)
-        if self.type == "a1":
+        if self.type == "a0":
+            self.sprite = AnimatedSprite(self.app, "Basic atk.png", glm.vec2(2, 1), 0.15, {
+                "animations": {
+                    "a": {"frames": 2, "frame_offset": 0, "repeat": False}
+                },
+                "default": "a"
+            })
+            self.physics_body = dynamicHurtBody(self.app, position, glm.vec2(16), 1)
+            self.parent.physics_processor.add_body(self.physics_body)
+        elif self.type == "a1":
             self.sprite = AnimatedSprite(self.app, "spells.png", glm.vec2(2, 4), 0.1, {
                 "animations": {
                     "a": {"frames": 4, "frame_offset": 0, "repeat": False}
@@ -37,15 +46,15 @@ class Particle:
     
     def update(self):
         self.sprite.update()
+        self.physics_body.position += glm.vec2(150 * self.direction, 0) / self.app.fps
         print(self.sprite.animation_finished, self.physics_body.colliding["object"])
         if self.sprite.animation_finished:
             self.parent.physics_processor.remove(self.physics_body)
             self.parent.particles.remove(self)
             return
-
     
     def render(self):
         self.sprite.program["position"] = (self.physics_body.position - self.parent.camera.position) / self.app.resolution
-        self.sprite.program["scale"] = glm.vec2(2)
+        self.sprite.program["scale"] = glm.vec2(1.5)
         self.sprite.program["flipped"] = self.direction == -1
         self.sprite.render()
