@@ -12,9 +12,9 @@ class Metroidvania(App):
         self.resolution: glm.vec2 = glm.vec2(640, 360)
         super().__init__(self.resolution * self.scale)
 
-        # pygame.mixer_music.load(f"{app_path}/assets/Bg Music.mp3")
-        # pygame.mixer_music.set_volume(0.5)
-        # pygame.mixer_music.play(-1)
+        pygame.mixer_music.load(f"{app_path}/assets/Bg Music.mp3")
+        pygame.mixer_music.set_volume(0.5)
+        pygame.mixer_music.play(-1)
 
         self.state = Campaign(self)
         # self.state = MapEditor(self)
