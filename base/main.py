@@ -1,4 +1,4 @@
-import pygame, moderngl as mgl, glm, os
+import pygame, moderngl as mgl, glm, os, asyncio
 
 from base.constants import GL_VERSION, DEPTH_SIZE
 from render.shader import ShaderProgram
@@ -18,10 +18,8 @@ class App:
         self.ctx = mgl.create_context()
         self.ctx.enable(flags=mgl.DEPTH_TEST | mgl.CULL_FACE | mgl.BLEND)
         self.ctx.gc_mode = 'auto'
-         
-        self.dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-        
-        self.shader_program = ShaderProgram(self.ctx, self.dir)
+                
+        self.shader_program = ShaderProgram(self.ctx)
         # self.compute_program = ComputeProgram(self.ctx)
     
         self.clock = pygame.time.Clock()
@@ -42,7 +40,7 @@ class App:
     def render(self):
         pass
     
-    def run(self):
+    async def run(self):
         while self.running:
             self.clock.tick(self.frame_rate)
             self.fps = self.clock.get_fps()
@@ -55,5 +53,7 @@ class App:
             self.handle_events()
             self.update()
             self.render()
+
+            await asyncio.sleep(0)
             
         pygame.quit()

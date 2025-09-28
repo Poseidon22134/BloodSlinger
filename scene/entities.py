@@ -318,50 +318,71 @@ class Animal:
         self.parent.physics_processor.add_body(self.physics_body)
         self.scale = glm.vec2(1)
 
-        self.sprite = AnimatedSprite(self.app, "Animals.png", glm.vec2(4, 4), 0.2, {
-            "animations": {
-                "r1": {"frames": 1, "frame_offset": 0, "repeat": True},
-                "c1": {"frames": 1, "frame_offset": 1, "repeat": True},
-                "r2": {"frames": 1, "frame_offset": 2, "repeat": True},
-                "c2": {"frames": 1, "frame_offset": 3, "repeat": True},
-                "b1": {"frames": 2, "frame_offset": 4, "repeat": True},
-                "b2": {"frames": 2, "frame_offset": 6, "repeat": True},
-                "f1": {"frames": 1, "frame_offset": 8, "repeat": True},
-                "f2": {"frames": 1, "frame_offset": 9, "repeat": True},
-                "dr": {"frames": 1, "frame_offset": 10, "repeat": True},
-                "dc": {"frames": 1, "frame_offset": 11, "repeat": True},
-                "db": {"frames": 2, "frame_offset": 12, "repeat": True},
-                "df": {"frames": 1, "frame_offset": 13, "repeat": True}
-            },
-            "default": "r1"
-        })
-        self.sprite.set_animation(self.sprite_type)
+        if self.type == "ram":
+            self.sprite = AnimatedSprite(self.app, "ram.png", glm.vec2(4, 1), 0.2, {
+                "animations": {
+                    "ram": {"frames": 3, "frame_offset": 0, "repeat": True},
+                    "dram": {"frames": 1, "frame_offset": 3, "repeat": False}
+                },
+                "default": "ram"
+            })
+            self.physics_body.size = glm.vec2(80, 64)
+        else:
+            self.sprite = AnimatedSprite(self.app, "Animals.png", glm.vec2(4, 4), 0.2, {
+                "animations": {
+                    "r1": {"frames": 1, "frame_offset": 0, "repeat": True},
+                    "c1": {"frames": 1, "frame_offset": 1, "repeat": True},
+                    "r2": {"frames": 1, "frame_offset": 2, "repeat": True},
+                    "c2": {"frames": 1, "frame_offset": 3, "repeat": True},
+                    "b1": {"frames": 2, "frame_offset": 4, "repeat": True},
+                    "b2": {"frames": 2, "frame_offset": 6, "repeat": True},
+                    "f1": {"frames": 1, "frame_offset": 8, "repeat": True},
+                    "f2": {"frames": 1, "frame_offset": 9, "repeat": True},
+                    "dr": {"frames": 1, "frame_offset": 10, "repeat": True},
+                    "dc": {"frames": 1, "frame_offset": 11, "repeat": True},
+                    "db": {"frames": 2, "frame_offset": 12, "repeat": True},
+                    "df": {"frames": 1, "frame_offset": 13, "repeat": True}
+                },
+                "default": "r1"
+            })
+            self.sprite.set_animation(self.sprite_type)
 
         self.direction = 1
+        self.picked_up = False
 
     def update(self):
+        if self.picked_up:
+            return
         if self.animal_alignment == "d":
             self.scale = glm.vec2(1)
             if glm.abs(self.physics_body.position.x - self.parent.player.physics_body.position.x) < 64 and glm.abs(self.physics_body.position.y - self.parent.player.physics_body.position.y) < 64:
                 self.scale = glm.vec2(1.5)
                 if pygame.key.get_pressed()[pygame.K_e]:
                     self.physics_body.position = self.parent.player.physics_body.position
+                    self.physics_body.velocity = glm.vec2(0)
                     self.physics_body.acceleration = glm.vec2(0)
+                    self.parent.physics_processor.remove(self.physics_body)
+                    self.scale = glm.vec2(1)
+                    self.picked_up = True
             return
         if random.randint(0, 100) == 0:
             self.direction *= -1
         if self.type == "b" and random.randint(0, 5) == 0:
                 self.physics_body.velocity.y = 128
-        
-        self.physics_body.velocity.x = (50 if self.type == "b" else 20) * self.direction
+
+        match self.type:
+            case "ram": 
+                self.physics_body.velocity.x = 100 * self.direction
+            case "b":
+                self.physics_body.velocity.x = 50 * self.direction
+            case _:
+                self.physics_body.velocity.x = 20 * self.direction
 
         if self.physics_body.colliding["area"]: # become dead
             self.sprite.set_animation("d" + self.type)
             self.animal_alignment = "d"
             self.physics_body.velocity = glm.vec2(0)
             self.physics_body.size = glm.vec2(32, 2)
-            # self.parent.animals.remove(self)
-            # self.parent.physics_processor.remove(self.physics_body)
 
         self.sprite.update()
     

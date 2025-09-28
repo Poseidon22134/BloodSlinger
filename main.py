@@ -1,8 +1,9 @@
-import pygame, glm
+import pygame, glm, asyncio
 
 from base.main import App
 from campaign import Campaign
 from mapEditor import MapEditor
+from base.constants import app_path
 # from menus import TitleScreen
 
 class Metroidvania(App):
@@ -11,12 +12,12 @@ class Metroidvania(App):
         self.resolution: glm.vec2 = glm.vec2(640, 360)
         super().__init__(self.resolution * self.scale)
 
-        pygame.mixer_music.load("assets/Bg Music.mp3")
-        pygame.mixer_music.set_volume(0.5)
-        pygame.mixer_music.play(-1)
+        # pygame.mixer_music.load(f"{app_path}/assets/Bg Music.mp3")
+        # pygame.mixer_music.set_volume(0.5)
+        # pygame.mixer_music.play(-1)
 
-        # self.state = Campaign(self)
-        self.state = MapEditor(self)
+        self.state = Campaign(self)
+        # self.state = MapEditor(self)
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -41,4 +42,4 @@ class Metroidvania(App):
 
 if __name__ == "__main__":
     game = Metroidvania()
-    game.run()
+    asyncio.run(game.run())

@@ -1,11 +1,13 @@
 import pygame, moderngl as mgl, glm, numpy as np
 
+from base.constants import app_path
+
 class Sprite:
     def __init__(self, app, name, pixel=True):
         self.app = app
         self.ctx = app.ctx
         
-        self.image = pygame.image.load(f"{app.dir}/assets/graphics/{name}").convert_alpha()
+        self.image = pygame.image.load(f"{app_path}/assets/graphics/{name}").convert_alpha()
         self.size = glm.vec2(self.image.get_width(), self.image.get_height())
         
         self.texture: mgl.Texture = self.ctx.texture(glm.ivec2(self.size), 4, pygame.image.tobytes(self.image, 'RGBA'))
@@ -45,7 +47,7 @@ class AnimatedSprite:
         self.app = app
         self.ctx = app.ctx
         
-        self.image = pygame.image.load(f"{app.dir}/assets/graphics/{name}").convert_alpha()
+        self.image = pygame.image.load(f"{app_path}/assets/graphics/{name}").convert_alpha()
         self.size = glm.vec2(self.image.get_width(), self.image.get_height())
         self.frame_size = self.size / dimensions
         

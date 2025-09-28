@@ -1,9 +1,10 @@
 import moderngl as mgl
 
+from base.constants import app_path
+
 class ShaderProgram:
-    def __init__(self, ctx, dir):
+    def __init__(self, ctx):
         self.ctx = ctx
-        self.dir = dir
         
         # self.programs = {}
     
@@ -13,9 +14,9 @@ class ShaderProgram:
             vs, fs = name
         else:
             vs = fs = name
-        with open(f"{self.dir}/shaders/{vs}.vert", "r") as f:
+        with open(f"{app_path}/shaders/{vs}.vert", "r") as f:
             vert = f.read()
-        with open(f"{self.dir}/shaders/{fs}.frag", "r") as f:
+        with open(f"{app_path}/shaders/{fs}.frag", "r") as f:
             frag = f.read()
         # self.programs[str(name)] = self.ctx.program(vertex_shader=vert, fragment_shader=frag)
         # return self.programs[str(name)]

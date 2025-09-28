@@ -13,7 +13,6 @@ class Particle:
 
         self.direction = direction
 
-        print(self.type)
         if self.type == "a0":
             self.sprite = AnimatedSprite(self.app, "Basic atk.png", glm.vec2(2, 1), 0.15, {
                 "animations": {

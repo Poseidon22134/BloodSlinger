@@ -2,6 +2,7 @@ import glm, pygame, moderngl as mgl, numpy as np, random
 
 from render.mesh import Mesh
 from scene.physicsProcessor import StaticTileMapBody
+from base.constants import app_path
 
 class Camera:
     def __init__(self, app, position, anchor=None, target_offset=None):
@@ -26,7 +27,7 @@ class StaticObject:
 
         self.position = position
 
-        self.image = pygame.image.load(f"{app.dir}/assets/graphics/{name}").convert_alpha()
+        self.image = pygame.image.load(f"{app_path}/assets/graphics/{name}").convert_alpha()
         self.size = glm.vec2(self.image.get_width(), self.image.get_height())
         self.texture: mgl.Texture = self.app.ctx.texture(glm.ivec2(self.size), 4, pygame.image.tobytes(self.image, 'RGBA', flipped=True))
         self.texture.filter = (mgl.NEAREST, mgl.NEAREST)
@@ -48,7 +49,7 @@ class TileMap:
         self.tilemap_dimensions = tilemap_dimensions
         self.tile_size = tile_size
         
-        self.image = pygame.image.load(f"{app.dir}/assets/graphics/atlas/{name}").convert_alpha()
+        self.image = pygame.image.load(f"{app_path}/assets/graphics/atlas/{name}").convert_alpha()
         self.size = glm.vec2(self.image.get_width(), self.image.get_height())
         self.texture: mgl.Texture = self.app.ctx.texture(glm.ivec2(self.size), 4, pygame.image.tobytes(self.image, 'RGBA'))
         self.texture.filter = (mgl.NEAREST, mgl.NEAREST)
