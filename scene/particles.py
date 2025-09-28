@@ -46,6 +46,6 @@ class Particle:
     
     def render(self):
         self.sprite.program["position"] = (self.physics_body.position - self.parent.camera.position) / self.app.resolution
-        self.sprite.program["scale"] = glm.vec2(1)
+        self.sprite.program["scale"] = glm.vec2(2)
         self.sprite.program["flipped"] = self.direction == -1
         self.sprite.render()

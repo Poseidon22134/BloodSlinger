@@ -85,7 +85,7 @@ class Player:
 
         self.always_running = True
 
-        self.sacrificed = 10
+        self.sacrificed = 2
         self.health = 10
         self.mana = 100
     
@@ -158,8 +158,11 @@ class Player:
         # I guess I'll just add this to run and dash then
         self.direction = direction if direction else self.direction
 
-    def attack(self):
-        pass
+    def attack(self, inp):
+        if inp == 1 and self.sacrificed >= 1 and self.mana > 1:
+            self.mana -= 1
+            self.parent.particles.append(Particle(self.app, self.parent, ("a1" if self.sacrificed <= 5 else "a2"), deepcopy(self.physics_body.position) + glm.vec2(64, 0) * self.direction, direction=self.direction))
+
 
     def handle_state(self):
         if self.physics_body.colliding["bottom"]:
@@ -195,10 +198,8 @@ class Player:
                 if self.dash(min(self.actions[2], 1) - min(self.actions[1], 1)):
                     self.state = 5
             
-            if self.actions[4] == 1 and self.sacrificed >= 1 and self.mana > 1:
-                self.mana -= 1
-                print(self.direction)
-                self.parent.particles.append(Particle(self.app, self.parent, ("a1" if self.sacrificed <= 5 else "a2"), deepcopy(self.physics_body.position) + glm.vec2(64, 0) * self.direction, direction=self.direction))
+            self.attack(self.actions[4])
+        
         elif self.state == 1: # Jumping
             self.sprite.set_animation("Idle")
             self.run(min(self.actions[2], 1) - min(self.actions[1], 1), self.actions[3])
@@ -209,6 +210,9 @@ class Player:
             if self.actions[5]:
                 if self.dash(min(self.actions[2], 1) - min(self.actions[1], 1)):
                     self.state = 5
+             
+            self.attack(self.actions[4])
+
         elif self.state == 2: # Falling
             self.sprite.set_animation("Idle")
 
@@ -228,10 +232,13 @@ class Player:
             if self.actions[5]:
                 if self.dash(min(self.actions[2], 1) - min(self.actions[1], 1)):
                     self.state = 5
+            
+            self.attack(self.actions[4])
+
         elif self.state == 3: # Landing
             self.sprite.set_animation("Idle")
 
-            if abs(self.physics_body.velocity.x) < STOPPED_VELOCITY and self.sprite.animation_finished:
+            if abs(self.physics_body.velocity.x) < STOPPED_VELOCITY:
                 self.state = 0
 
             if self.jump(self.actions[0]):
@@ -240,6 +247,9 @@ class Player:
 
             if self.run(min(self.actions[2], 1) - min(self.actions[1], 1), self.actions[3]):
                 self.state = 4
+            
+            self.attack(self.actions[4])
+
         elif self.state == 4: # Running/Walking
             self.sprite.set_animation("Idle")
 
@@ -266,6 +276,8 @@ class Player:
 
             if abs(self.physics_body.velocity.x) < STOPPED_VELOCITY:
                 self.state = 0
+            
+            self.attack(self.actions[4])
         elif self.state == 5: # Dash
             self.sprite.set_animation("Dash")
 
